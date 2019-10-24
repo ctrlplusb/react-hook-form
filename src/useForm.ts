@@ -52,6 +52,7 @@ export default function useForm<FormValues extends FieldValues = FieldValues>({
   nativeValidation,
   submitFocusError = true,
   validationSchemaOption = { abortEarly: false },
+  skipFormState = false,
 }: Options<FormValues> = {}) {
   const fieldsRef = useRef<FieldsRefs<FormValues>>({});
   const errorsRef = useRef<FieldErrors<FormValues>>({});
@@ -171,15 +172,16 @@ export default function useForm<FormValues extends FieldValues = FieldValues>({
     (name: FieldName<FormValues>, value: FieldValue<FormValues>): void => {
       const shouldRender = setFieldValue(name, value);
       if (
-        setDirty(name) ||
-        shouldRender ||
-        !touchedFieldsRef.current.has(name)
+        (setDirty(name) ||
+          shouldRender ||
+          !touchedFieldsRef.current.has(name)) &&
+        !skipFormState
       ) {
         touchedFieldsRef.current.add(name);
         render({});
       }
     },
-    [],
+    [skipFormState],
   );
 
   const executeValidation = useCallback(
@@ -345,7 +347,7 @@ export default function useForm<FormValues extends FieldValues = FieldValues>({
         }
 
         if (shouldSkipValidation) {
-          return shouldUpdateState ? render({}) : undefined;
+          return shouldUpdateState && !skipFormState ? render({}) : undefined;
         }
 
         if (validationSchema) {
@@ -377,7 +379,7 @@ export default function useForm<FormValues extends FieldValues = FieldValues>({
           return;
         }
 
-        if (shouldUpdateState) {
+        if (shouldUpdateState && !skipFormState) {
           render({});
         }
       };

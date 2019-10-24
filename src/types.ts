@@ -55,6 +55,7 @@ export type Options<FormValues extends FieldValues = FieldValues> = Partial<{
   validationSchema: any;
   nativeValidation: boolean;
   submitFocusError: boolean;
+  skipFormState: boolean;
 }>;
 
 export interface MutationWatcher {
